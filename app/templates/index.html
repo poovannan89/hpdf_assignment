@@ -1,7 +1,9 @@
 {% extends "base.html" %}
-{% block content %}
-    <h1>Hello World - {{ user.nickname }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.nickname }} says: <b>{{ post.body }}</b></p></div>
-    {% endfor %}
+{% block content %}  
+	<h3>Hello World - Poovannan </h3>  
+    <form action = "/setcookie" method = "POST">         
+         <p>Enter username<input type = 'text' name = 'name'/></p>
+         <p>Enter age<input type = 'text' name = 'age'/></p>
+         <p><input type = 'submit' value = 'Set cookie'/></p>
+      </form>
 {% endblock %}
