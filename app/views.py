@@ -56,18 +56,21 @@ def postcount():
 @app.route('/setcookie',methods = ['POST', 'GET'])
 def setcookie():
 	if request.method == 'POST':
-		user = request.form['name']
-		age = request.form['age']
-		isEmptyFields = False 
-		if user == '' or age == '':			
-			isEmptyFields = True
-			resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
-			return resp						
+		if 'userName' in request.cookies or 'age' in request.cookies:
+			return "Cookie is already set"
 		else:
-			resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
-			resp.set_cookie('userName',user)
-			resp.set_cookie('age',age)		
-			return resp
+			user = request.form['name']
+			age = request.form['age']
+			isEmptyFields = False 
+			if user == '' or age == '':			
+				isEmptyFields = True
+				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
+				return resp						
+			else:
+				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
+				resp.set_cookie('userName',user)
+				resp.set_cookie('age',age)		
+				return resp
 	if request.method == 'GET':
 		return render_template('index.html')	 
 
