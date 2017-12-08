@@ -83,11 +83,11 @@ def getcookies():
 def page_forbidden(e):
 	return render_template('401.html'),401
 	
-@app.route('/robots.txt', methods= ['POST', 'GET'])
+@app.route('/robots.txt', methods= ['GET'])
 def deny_request():
 	abort(401)
 
-@app.route('/image', methods = ['POST', 'GET'])
+@app.route('/image', methods = ['GET'])
 def display_image():
 	return render_template('image.html')
 
