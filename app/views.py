@@ -3,6 +3,7 @@ from app import app
 from urllib.request import urlopen
 import json,logging 
 
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -12,68 +13,71 @@ def index():
 @app.route('/authors', methods=['GET'])
 def authors():
 	users_url = 'https://jsonplaceholder.typicode.com/users'
-	resp = urlopen(users_url)			
-	resp_data = resp.read().decode('utf-8')
-	users_details = json.loads(resp_data)
-	all_users = []	
-	for euser in users_details:
-		print(euser['name'])			
-		all_users.append(euser['name'])
-	return str(all_users)
+	resp = urlopen(users_url)				
+	users_details = json.loads(resp.read().decode('utf-8'))
+	uname_list = []	
+	for euser in users_details:		
+		uname_list.append(euser['name'])
+	return str(uname_list)
 
 @app.route('/posts', methods=['GET'])
 def posts():
 	posts_url = 'https://jsonplaceholder.typicode.com/posts'
-	resp = urlopen(posts_url)
-	resp_data = resp.read().decode('utf-8')
-	posts_details = json.loads(resp_data)		
+	resp = urlopen(posts_url)	
+	posts_details = json.loads(resp.read().decode('utf-8'))		
 	return render_template('posts.html',title='Home',posts=posts_details)
 
 
-@app.route('/count', methods=['GET'])
-def count():
+@app.route('/postcount', methods=['GET'])
+def postcount():
 	users_url = 'https://jsonplaceholder.typicode.com/users'
-	users_resp = urlopen(users_url)		
-	user_resp_data = users_resp.read().decode('utf-8')
-	users_details = json.loads(user_resp_data)
-	users_dict = {}
+	users_resp = urlopen(users_url)			
+	users_details = json.loads(users_resp.read().decode('utf-8'))
+	uid_uname_dict = {}
 	for euser in users_details:
-		users_dict[euser['id']] = euser['name'] 
+		uid_uname_dict[euser['id']] = euser['name'] 
 	posts_url = 'https://jsonplaceholder.typicode.com/posts'
-	posts_resp = urlopen(posts_url)
-	post_resp_data = posts_resp.read().decode('utf-8')
-	posts_details = json.loads(post_resp_data)		
-	posts_count_dict = {}
+	posts_resp = urlopen(posts_url)	
+	posts_details = json.loads(posts_resp.read().decode('utf-8'))		
+	uid_post_count_dict = {}
 
-	for uid in users_dict:
+	for uid in uid_uname_dict:
 		pcnt = 0
 		for epost in posts_details:			
 			if epost['userId'] == uid:				
 				pcnt += 1			
-		posts_count_dict[uid] = pcnt
-	author_post_count = {}
-	for uid in posts_count_dict:
-		author_post_count[users_dict[uid]] =  posts_count_dict[uid]
-	return str(author_post_count)
+		uid_post_count_dict[uid] = pcnt
+	uname_post_count_dict = {}
+	for uid in uid_post_count_dict:
+		uname_post_count_dict[uid_uname_dict[uid]] =  uid_post_count_dict[uid]
+
+	return render_template('pcount.html',userpcount=uname_post_count_dict)
 	
 @app.route('/setcookie',methods = ['POST', 'GET'])
 def setcookie():
 	if request.method == 'POST':
 		user = request.form['name']
 		age = request.form['age']
-		resp = make_response(render_template('readcookie.html'))
-		resp.set_cookie('userName',user)
-		resp.set_cookie('age',age)
-		print("Before returning response")
-		return resp 
+		isEmptyFields = False 
+		if user == '' or age == '':			
+			isEmptyFields = True
+			resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
+			return resp						
+		else:
+			resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
+			resp.set_cookie('userName',user)
+			resp.set_cookie('age',age)		
+			return resp
+	if request.method == 'GET':
+		return render_template('index.html')	 
 
-@app.route('/getcookies', methods= ['POST', 'GET'])
+@app.route('/getcookies', methods= ['GET'])
 def getcookies():
-	print("Dict is",request.cookies)	
-	cookielist=[]
-	cookielist.append(request.cookies.get('userName'))
-	cookielist.append(request.cookies.get('age'))
-	return str(cookielist)
+	if request.method == 'GET':	
+		cookielist=[]
+		cookielist.append(request.cookies.get('userName'))
+		cookielist.append(request.cookies.get('age'))
+		return str(cookielist)
 
 @app.errorhandler(401)
 def page_forbidden(e):

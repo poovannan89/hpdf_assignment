@@ -1,5 +1,11 @@
 {% extends "base.html" %}
-{% block content %}    
-   <h2>User ID and age is set as cookie</h2>
+{% block content %}
+{% if isEmptyFields == True %}
+	<p> Name or Age is empty. Please fill both fields to set cookie </p>
+	<div> <a href="/index">Go to Home to set cookies again</a></div>
+{% else %}    
+    <p>User ID and age is set as cookie</p>
+    <div> <a href="/getcookies">View your cookies </a></div>
+{% endif %}   
 {% endblock %} 
 
