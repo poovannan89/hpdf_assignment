@@ -95,9 +95,12 @@ def display_image():
 def input():
 	if request.method == 'POST':
 		feedback = request.form['feedback']
-		print("Feedback received is",feedback)
-		resp = make_response(render_template('thankyou.html',feedback=feedback))
-		return resp
+		if feedback == '':
+			return "No feedback received. Please enter again"
+		else:
+			print("Feedback received is",feedback)
+			resp = make_response(render_template('thankyou.html',feedback=feedback))
+			return resp
 	if request.method == 'GET':
 		return render_template('input.html')
 			
