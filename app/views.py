@@ -106,7 +106,20 @@ def input():
 			return resp
 	if request.method == 'GET':
 		return render_template('input.html')
-			
+
+@app.route('/paymentcs',methods= ['POST', 'GET'])
+def paymentcs():
+	if request.method == 'GET':
+		return render_template('paypal.html')
+
+@app.route('paymentss',methods= ['POST', 'GET'])
+def paymentss():
+	if request.method == 'GET':
+		return render_template('paypalss.html')
+	if request.method == 'POST':
+		
+		
+
 
 
 
