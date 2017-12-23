@@ -6,7 +6,7 @@ Followed the below tutorial for setting up flask in virtual environment :
 https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world-legacy
 
 #Functionalities Task1 : simply displays Hello world - 
-My name. Index page has username and age text box which is used for setting cookies. 
+My name. 
 
 Task2 : 
 a) http://localhost:8080/authors URL end point fetches the list of authors from 
@@ -17,7 +17,8 @@ c) http://localhost:8080/postcount URL end point provides number of posts each o
 Used list and dict data structures and displayed output as table.
 
 Task3 : http://localhost:8080/setcookie URL end point is used to set cookie with inputs as username and age. 
-Form inputs are validated and cookie is set. If cookie is already set, it is also notified in response for the request.
+Form inputs are validated using inbuilt validators and errors are notified. On success of validation, cookie is set. 
+If cookie is already set, it is also notified in response for the request.
 
 Task4 : http://localhost:8080/getcookies URL end point is used to retrieve the list of cookies which is already set.
 

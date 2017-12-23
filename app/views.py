@@ -2,11 +2,11 @@ from flask import render_template, request, make_response, abort
 from app import app
 from urllib.request import urlopen
 import json,logging 
-
+from app.forms import CookieForm
 
 @app.route('/')
 @app.route('/index')
-def index():
+def index():		
 	return render_template('index.html',
                            title='Home')                           
 
@@ -54,25 +54,21 @@ def postcount():
 	return render_template('pcount.html',userpcount=uname_post_count_dict)
 	
 @app.route('/setcookie',methods = ['POST', 'GET'])
-def setcookie():
-	if request.method == 'POST':
-		if 'userName' in request.cookies or 'age' in request.cookies:
-			return "Cookie is already set"
-		else:
-			user = request.form['name']
-			age = request.form['age']
-			isEmptyFields = False 
-			if user == '' or age == '':			
-				isEmptyFields = True
-				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
-				return resp						
-			else:
-				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
-				resp.set_cookie('userName',user)
-				resp.set_cookie('age',age)		
-				return resp
-	if request.method == 'GET':
-		return render_template('index.html')	 
+def setcookie():	
+	form = CookieForm()
+	if form.validate_on_submit():				
+				user = request.form['username']
+				age = request.form['age']	
+				cookie_exists=False 								
+				if 'userName' in request.cookies and 'age' in request.cookies:
+					cookie_exists=True									
+				resp = make_response(render_template('readcookie.html',cookie_exists=cookie_exists))			
+				if not cookie_exists:
+					resp.set_cookie('userName',user)
+					resp.set_cookie('age',age)	
+				return resp			
+	return render_template('cookie-form.html', form=form)	 			
+		
 
 @app.route('/getcookies', methods= ['GET'])
 def getcookies():
