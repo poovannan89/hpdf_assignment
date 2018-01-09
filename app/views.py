@@ -1,8 +1,12 @@
-from flask import render_template, request, make_response, abort
+from flask import render_template, request, make_response, abort, jsonify
 from app import app
 from urllib.request import urlopen
 import json,logging 
-
+import paypalrestsdk
+paypalrestsdk.configure({
+  "mode": "sandbox", # sandbox or live
+  "client_id": "AQBhEyJ3eHxZjct02KmnC9tuItCtW9W1CLjNvUk-XJJPvQ-CcUEUcYMf_Hf7ladliImxa1o5RXdP7PZf",
+  "client_secret": "EHRbkvOjUB1xzWXxwV_Y74Klbz0omO63xin9dWF174e8HEPH9VXQgedxzOSn7K5yn4hrg6knXQr7YmBI" })
 
 @app.route('/')
 @app.route('/index')
@@ -58,7 +62,7 @@ def setcookie():
 	if request.method == 'POST':
 		if 'userName' in request.cookies or 'age' in request.cookies:
 			return "Cookie is already set"
-		else:
+		else:		
 			user = request.form['name']
 			age = request.form['age']
 			isEmptyFields = False 
@@ -96,7 +100,7 @@ def display_image():
 
 @app.route('/input',methods = ['POST', 'GET'])
 def input():
-	if request.method == 'POST':
+	if request.method == 'POST':		
 		feedback = request.form['feedback']
 		if feedback == '':
 			return "No feedback received. Please enter again"
@@ -112,21 +116,52 @@ def paymentcs():
 	if request.method == 'GET':
 		return render_template('paypal.html')
 
-@app.route('paymentss',methods= ['POST', 'GET'])
-def paymentss():
-	if request.method == 'GET':
-		return render_template('paypalss.html')
-	if request.method == 'POST':
-		
-		
 
+@app.route('/paymentss')
+def paymentss():	
+		return render_template('paypalss.html')	
 
+@app.route('/payment', methods=['POST'])
+def payment():
 
+    payment = paypalrestsdk.Payment({
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"},
+        "redirect_urls": {
+            "return_url": "http://localhost:8080/payment/execute",
+            "cancel_url": "http://localhost:8080/"},
+        "transactions": [{
+            "item_list": {
+                "items": [{
+                    "name": "testitem",
+                    "sku": "12345",
+                    "price": "5001.00",
+                    "currency": "INR",
+                    "quantity": 1}]},
+            "amount": {
+                "total": "5001.00",
+                "currency": "INR"},
+            "description": "This is the payment transaction description."}]})
 
+    if payment.create():
+        print('Payment success!')
+    else:
+        print(payment.error)
 
+    return jsonify({'paymentID' : payment.id})
 
+@app.route('/execute', methods=['POST'])
+def execute():
+    success = False
+    payment = paypalrestsdk.Payment.find(request.form['paymentID'])
 
+    if payment.execute({'payer_id' : request.form['payerID']}):
+        print('Execute success!')
+        success = True
+    else:
+        print(payment.error)
 
-
+    return jsonify({'success' : success})
 
 	

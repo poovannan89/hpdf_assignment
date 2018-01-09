@@ -1,47 +1,43 @@
-{% extends "base.html" %}
-{% block content %}    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <div id="paypal-button"></div>
+
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
-<div id="paypal-button"></div>
-  <script>
+
+<script>
+    var CREATE_PAYMENT_URL  = 'http://localhost:8080/payment';
+    var EXECUTE_PAYMENT_URL = 'http://localhost:8080/execute';
+
     paypal.Button.render({
-      env: 'sandbox', // Or 'sandbox',
 
-      commit: true, // Show a 'Pay Now' button
+        env: 'sandbox', // Or 'sandbox'
 
-      client: {
-      	sandbox: 'AQBhEyJ3eHxZjct02KmnC9tuItCtW9W1CLjNvUk-XJJPvQ-CcUEUcYMf_Hf7ladliImxa1o5RXdP7PZf'
-      },
+        commit: true, // Show a 'Pay Now' button
 
-      style: {
-        color: 'gold',
-        size: 'small'
-      },
+        payment: function() {
+            return paypal.request.post(CREATE_PAYMENT_URL).then(function(data) {
+                return data.paymentID;
+            });
+        },
 
-      payment: function(data, actions) {
+        onAuthorize: function(data) {
+            return paypal.request.post(EXECUTE_PAYMENT_URL, {
+                paymentID: data.paymentID,
+                payerID:   data.payerID
+            }).then(function(res) {
 
-      	
-        /* 
-         * Set up the payment here 
-         */
-      },
+                console.log(res.success)
+                // The payment is complete!
+                // You can now show a confirmation message to the customer
+            });
+        }
 
-      onAuthorize: function(data, actions) {
-      	
-         * Execute the payment here 
-         */
-      },
-
-      onCancel: function(data, actions) {
-        /* 
-         * Buyer cancelled the payment 
-         */
-      },
-
-      onError: function(err) {
-        /* 
-         * An error occurred during the transaction 
-         */
-      }
     }, '#paypal-button');
-  </script>
-{% endblock %}
+</script>
+</body>
+</html>
