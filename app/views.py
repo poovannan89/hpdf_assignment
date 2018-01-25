@@ -1,4 +1,5 @@
-from flask import render_template, request, make_response, abort, jsonify
+from flask import render_template, request, make_response, abort, jsonify, redirect, url_for
+from app.forms import CheckoutForm
 from app import app
 from urllib.request import urlopen
 import json,logging 
@@ -7,6 +8,13 @@ paypalrestsdk.configure({
   "mode": "sandbox", # sandbox or live
   "client_id": "AQBhEyJ3eHxZjct02KmnC9tuItCtW9W1CLjNvUk-XJJPvQ-CcUEUcYMf_Hf7ladliImxa1o5RXdP7PZf",
   "client_secret": "EHRbkvOjUB1xzWXxwV_Y74Klbz0omO63xin9dWF174e8HEPH9VXQgedxzOSn7K5yn4hrg6knXQr7YmBI" })
+
+checkout_amount=0
+
+class CheckAmount(object):
+	tamount = 'none'
+	def __init__(self, tamount=None):
+		self.tamount=tamount
 
 @app.route('/')
 @app.route('/index')
@@ -111,45 +119,62 @@ def input():
 	if request.method == 'GET':
 		return render_template('input.html')
 
+@app.route('/checkout',methods = ['POST','GET'])
+def checkout():
+	form = CheckoutForm()
+	if form.validate_on_submit():
+		checkout_amount= request.form['amount']
+		ca = CheckAmount(checkout_amount)
+		print("check amt is ", ca.tamount)
+		return redirect(url_for('paymentss'))
+	return render_template('checkout.html', title='Pay Now', form=form)
+
+
 @app.route('/paymentcs',methods= ['POST', 'GET'])
 def paymentcs():
 	if request.method == 'GET':
 		return render_template('paypal.html')
 
 
+@app.route('/payment', methods=['POST'])
+def payment():	
+	print("inside payment ", request.form)
+	#print("chk amt is", checkout_amount)
+	#amt= request.form['amount']
+	#print('Amount is',amt)
+	payment = paypalrestsdk.Payment({
+		"intent": "sale",
+		"payer": {
+			"payment_method": "paypal"},
+		"redirect_urls": {
+			"return_url": "http://localhost:8080/payment/execute",
+			"cancel_url": "http://localhost:8080/"
+		},
+		"transactions": [{
+			"item_list": {
+				"items": [{
+					"name": "testitem",
+					"sku": "12345",
+					"price": "5001.00",
+					"currency": "INR",
+					"quantity": 1}]},				
+			"amount": {
+				"total": "5001.00",
+				"currency": "INR"
+			},
+			"description": "This is the payment transaction description"		
+		}]
+		})
+	if payment.create():
+		print('Payment success')
+	else:
+		print(payment.error)
+
+	return jsonify({'paymentID' : payment.id})
+
 @app.route('/paymentss')
 def paymentss():	
 		return render_template('paypalss.html')	
-
-@app.route('/payment', methods=['POST'])
-def payment():
-
-    payment = paypalrestsdk.Payment({
-        "intent": "sale",
-        "payer": {
-            "payment_method": "paypal"},
-        "redirect_urls": {
-            "return_url": "http://localhost:8080/payment/execute",
-            "cancel_url": "http://localhost:8080/"},
-        "transactions": [{
-            "item_list": {
-                "items": [{
-                    "name": "testitem",
-                    "sku": "12345",
-                    "price": "5001.00",
-                    "currency": "INR",
-                    "quantity": 1}]},
-            "amount": {
-                "total": "5001.00",
-                "currency": "INR"},
-            "description": "This is the payment transaction description."}]})
-
-    if payment.create():
-        print('Payment success!')
-    else:
-        print(payment.error)
-
-    return jsonify({'paymentID' : payment.id})
 
 @app.route('/execute', methods=['POST'])
 def execute():
