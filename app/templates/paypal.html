@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}    
+<p>Total cost<input type = 'number' name = 'total_cost' id='tcost' /></p>                  
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 <div id="paypal-button"></div>
   <script>
@@ -18,12 +19,12 @@
       },
 
       payment: function(data, actions) {
-
+        var input_amt = document.getElementById('tcost').value;        
       	return actions.payment.create({
       		payment: {
       			transactions: [
       				{
-      					amount: { total: '500.00', currency: 'INR'}	
+      					amount: { total: input_amt, currency: 'INR'}	
       				}
       			]
 
@@ -45,15 +46,11 @@
       },
 
       onCancel: function(data, actions) {
-        /* 
-         * Buyer cancelled the payment 
-         */
+        window.alert('Payment cancelled')
       },
 
       onError: function(err) {
-        /* 
-         * An error occurred during the transaction 
-         */
+        window.alert('There is error in payment')
       }
     }, '#paypal-button');
   </script>

@@ -2,6 +2,7 @@ from flask import render_template, request, make_response, abort, jsonify, redir
 from app.forms import CheckoutForm
 from app import app
 from urllib.request import urlopen
+from bs4 import BeautifulSoup
 import json,logging 
 import paypalrestsdk
 paypalrestsdk.configure({
@@ -121,7 +122,7 @@ def input():
 
 @app.route('/checkout',methods = ['POST','GET'])
 def checkout():
-	form = CheckoutForm()
+	form = CheckoutForm()	
 	if form.validate_on_submit():
 		checkout_amount= request.form['amount']
 		ca = CheckAmount(checkout_amount)
@@ -136,12 +137,17 @@ def paymentcs():
 		return render_template('paypal.html')
 
 
+# To DO : Make a list of transactions dynamically and update it
 @app.route('/payment', methods=['POST'])
-def payment():	
-	print("inside payment ", request.form)
-	#print("chk amt is", checkout_amount)
-	#amt= request.form['amount']
-	#print('Amount is',amt)
+def payment():			
+	url = 'http://localhost:8080/paymentss'
+	try: usock = urlopen(url)
+	except URLError:
+		print("URL error is",URLError)
+	"""data = usock.read()
+	usock.close()
+	soup = BS(data)
+	print(soup.find('input', {'name': 'tamount'}).text)"""
 	payment = paypalrestsdk.Payment({
 		"intent": "sale",
 		"payer": {

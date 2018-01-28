@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}    
+Total Amount<input type="number" name="tamount"><br>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 <div id="paypal-button"></div>
 <script>
@@ -19,8 +20,7 @@
                 payerID:   data.payerID
             }).then(function(res) {
                 console.log(res.success)
-                // The payment is complete!
-                // You can now show a confirmation message to the customer
+                window.alert('Payment completed successfully')
             });
         }
     }, '#paypal-button');
