@@ -27,30 +27,22 @@
       					amount: { total: input_amt, currency: 'INR'}	
       				}
       			]
-
       		}
-      	})
-        /* 
-         * Set up the payment here 
-         */
+      	});      
       },
 
       onAuthorize: function(data, actions) {
       	return actions.payment.execute().then(function(){
-          console.log(payment)
+          console.log(payment);
       		window.alert('Payment complete!');	
-      	});
-        /* 
-         * Execute the payment here 
-         */
+      	});        
       },
 
       onCancel: function(data, actions) {
         window.alert('Payment cancelled')
       },
 
-      onError: function(err) {
-        window.alert('There is error in payment')
+      onError: function(err) {        
       }
     }, '#paypal-button');
   </script>
