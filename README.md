@@ -25,8 +25,8 @@ provide expected response. The transaction is completing, but need to return res
 
 http://localhost:8080/paymentss 
 
-This is server side REST API integration. As of now it is working for static data of transaction which is hardcoded.
-Need to provide transaction list dynamically and improve the code.
+This is server side REST API integration. It is working where we input total amount alone dynamically via text box.
+Need to work on total items, transaction list to be more dynamic.
 
 How to build on top of this ? 
 
