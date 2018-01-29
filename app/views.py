@@ -140,14 +140,9 @@ def paymentcs():
 # To DO : Make a list of transactions dynamically and update it
 @app.route('/payment', methods=['POST'])
 def payment():			
-	url = 'http://localhost:8080/paymentss'
-	try: usock = urlopen(url)
-	except URLError:
-		print("URL error is",URLError)
-	"""data = usock.read()
-	usock.close()
-	soup = BS(data)
-	print(soup.find('input', {'name': 'tamount'}).text)"""
+	inp_amt = request.form['input_amt']	
+	print('type is ',type(inp_amt))
+	int_price= int(inp_amt)
 	payment = paypalrestsdk.Payment({
 		"intent": "sale",
 		"payer": {
@@ -161,11 +156,11 @@ def payment():
 				"items": [{
 					"name": "testitem",
 					"sku": "12345",
-					"price": "5001.00",
+					"price": int_price,
 					"currency": "INR",
 					"quantity": 1}]},				
 			"amount": {
-				"total": "5001.00",
+				"total": int_price,
 				"currency": "INR"
 			},
 			"description": "This is the payment transaction description"		

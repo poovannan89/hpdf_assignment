@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% block content %}    
-Total Amount<input type="number" name="tamount"><br>
+Total Amount<input type="number" name="tamount" id='tcost' ><br>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 <div id="paypal-button"></div>
 <script>
     var CREATE_PAYMENT_URL  = 'http://localhost:8080/payment';
     var EXECUTE_PAYMENT_URL = 'http://localhost:8080/execute';
+    var input_amt = document.getElementById('tcost').value;            
     paypal.Button.render({
         env: 'sandbox', // Or 'sandbox'
-        commit: true, // Show a 'Pay Now' button
-        payment: function() {
-            return paypal.request.post(CREATE_PAYMENT_URL).then(function(data) {
+        commit: true, // Show a 'Pay Now' button        
+        payment: function() {            
+                return paypal.request.post(CREATE_PAYMENT_URL, {
+                input_amt: document.getElementById('tcost').value
+                }).then(function(data) {
                 return data.paymentID;
-            });
+            });                
         },
         onAuthorize: function(data) {
             return paypal.request.post(EXECUTE_PAYMENT_URL, {
