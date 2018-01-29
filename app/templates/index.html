@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 {% block content %}  
-<<<<<<< HEAD
-	<h3>Hello World - Poovannan </h3>  
-    <form action = "/setcookie" method = "POST" name="form1">         
-         <p>Total cost<input type = 'number' name = 'total_cost'/></p>         
-         <p>Enter age<input type = 'text' name = 'age'/></p>         
-         <p><input type = 'submit' value = 'Set cookie'/></p>
+	<h3>Welcome - Please login to shopping </h3>  
+    <form action = "/login" method = "POST" name="form1">         
+         <p>Enter Name<input type = 'text' name = 'uname'/></p>         
+         <p>Enter Password <input type = 'password' name = 'upass'/></p>         
+         <p><input type = 'submit' value = 'Login'/></p>
       </form>
-=======
-<h3>Hello World - Poovannan </h3>  
->>>>>>> master
 {% endblock %}

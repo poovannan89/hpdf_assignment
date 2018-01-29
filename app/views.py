@@ -66,23 +66,23 @@ def postcount():
 
 	return render_template('pcount.html',userpcount=uname_post_count_dict)
 	
-@app.route('/setcookie',methods = ['POST', 'GET'])
-def setcookie():
+@app.route('/login',methods = ['POST', 'GET'])
+def login():
 	if request.method == 'POST':
-		if 'userName' in request.cookies or 'age' in request.cookies:
-			return "Cookie is already set"
+		if 'uname' in request.cookies or 'upass' in request.cookies:
+			return "Cookie login is already set"
 		else:		
-			user = request.form['name']
-			age = request.form['age']
+			uname = request.form['uname']
+			upass = request.form['upass']
 			isEmptyFields = False 
-			if user == '' or age == '':			
+			if uname == '' or upass == '':			
 				isEmptyFields = True
 				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
 				return resp						
 			else:
 				resp = make_response(render_template('readcookie.html',isEmptyFields=isEmptyFields))
-				resp.set_cookie('userName',user)
-				resp.set_cookie('age',age)		
+				resp.set_cookie('uname',uname)
+				resp.set_cookie('upass',upass)		
 				return resp
 	if request.method == 'GET':
 		return render_template('index.html')	 
@@ -91,8 +91,8 @@ def setcookie():
 def getcookies():
 	if request.method == 'GET':	
 		cookielist=[]
-		cookielist.append(request.cookies.get('userName'))
-		cookielist.append(request.cookies.get('age'))
+		cookielist.append(request.cookies.get('uname'))
+		cookielist.append(request.cookies.get('upass'))
 		return str(cookielist)
 
 @app.errorhandler(401)
@@ -140,9 +140,17 @@ def paymentcs():
 # To DO : Make a list of transactions dynamically and update it
 @app.route('/payment', methods=['POST'])
 def payment():			
-	inp_amt = request.form['input_amt']	
-	print('type is ',type(inp_amt))
-	int_price= int(inp_amt)
+	item1q = request.form['item1q']
+	item2q = request.form['item2q']
+	item3q = request.form['item3q']
+	item1p = request.form['item1p']
+	item2p = request.form['item2p']
+	item3p = request.form['item3p']	
+	int_1q = int(item1q)
+
+	print('value is',int(item1q),"sec value is",int(item1p))
+	total_p = int(item1q)*int(item1p) + int(item2q)*int(item2p) + int(item3q)*int(item3p)
+	print('total price is',total_p)
 	payment = paypalrestsdk.Payment({
 		"intent": "sale",
 		"payer": {
@@ -154,13 +162,26 @@ def payment():
 		"transactions": [{
 			"item_list": {
 				"items": [{
-					"name": "testitem",
+					"name": "item1",
 					"sku": "12345",
-					"price": int_price,
+					"price": int(item1p),
 					"currency": "INR",
-					"quantity": 1}]},				
+					"quantity": int(item1q)},
+					{
+					"name": "item2",
+					"sku": "12346",
+					"price": int(item2p),
+					"currency": "INR",
+					"quantity": int(item2q)},
+					{
+					"name": "item3",
+					"sku": "12347",
+					"price": int(item3p),
+					"currency": "INR",
+					"quantity": int(item3q)},	
+					]},				
 			"amount": {
-				"total": int_price,
+				"total": int(total_p),
 				"currency": "INR"
 			},
 			"description": "This is the payment transaction description"		
