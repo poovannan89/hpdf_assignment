@@ -136,6 +136,56 @@ def paymentcs():
 	if request.method == 'GET':
 		return render_template('paypal.html')
 
+@app.route('/api/payment', methods=['POST'])
+def api_payment():
+	if request.method == 'POST':
+		print('request data is',request.data)		
+		amt_details= request.get_json(force=True)		
+		print('amt_details is',amt_details,'type is',type(amt_details))		
+		amt = amt_details['inputamt']		
+		int_amt = int(amt)		
+		payment = paypalrestsdk.Payment({
+		"intent": "sale",
+		"payer": {
+			"payment_method": "paypal"},
+		"redirect_urls": {
+			"return_url": "https://app.antitank89.hasura-app.io/api/execute",
+			"cancel_url": "https://app.antitank89.hasura-app.io"
+		},
+		"transactions": [{
+			"item_list": {
+				"items": [{
+					"name": "item1",
+					"sku": "12345",
+					"price": int_amt,
+					"currency": "INR",
+					"quantity": 1}]},										
+			"amount": {
+				"total": int_amt,
+				"currency": "INR"
+			},
+			"description": "This is the payment transaction description"		
+		}]
+		})
+	if payment.create():
+		print('Payment success')
+	else:
+		print(payment.error)
+	print('PaymentID created is',payment.id)	
+	return jsonify({'paymentID' : payment.id})
+
+@app.route('/api/execute', methods=['POST'])
+def api_execute():
+	success = False
+	payment_details = request.get_json(force=True)
+	print('Inside api_execute type of payment_details is',type(payment_details))
+	payment = paypalrestsdk.Payment.find(payment_details['paymentID'])
+	if payment.execute({'payer_id' : payment_details['payerID']}):
+		print('Execute success')
+		success = True
+	else:
+		print(payment.error)	
+	return jsonify({'success' : success})
 
 # To DO : Make a list of transactions dynamically and update it
 @app.route('/payment', methods=['POST'])
